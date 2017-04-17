@@ -73,6 +73,14 @@ def GetSpeeds(results, column=5):
         speeds.append(speed)
     return speeds
 
+def BiasPmf(pmf, speed):
+    observed_pmf = pmf.Copy()
+    for value in pmf.Values():
+        speed_diff = abs(value - speed)
+        observed_pmf.Mult(value, speed_diff)
+#    print observed_speed
+    return observed_pmf
+    
 
 def main():
     results = ReadResults()
@@ -80,6 +88,11 @@ def main():
     pmf = Pmf.MakePmfFromList(speeds, 'speeds')
     myplot.Pmf(pmf)
     myplot.Show(title='PMF of running speed',
+               xlabel='speed (mph)',
+               ylabel='probability')
+    observed_pmf = BiasPmf(pmf, 7.5)
+    myplot.Pmf(observed_pmf)
+    myplot.Show(title='Biased PMF of running speed at 7.5',
                xlabel='speed (mph)',
                ylabel='probability')
 
