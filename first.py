@@ -11,6 +11,11 @@ from thinkstats import Mean, MeanVar, Var
 import Pmf
 from operator import itemgetter
 import matplotlib.pyplot as pyplot
+import myplot
+import Cdf
+import score_example
+#from math import isnan
+#import risk
 #import pandas as pd
 
 
@@ -63,8 +68,15 @@ def AllModes(records):
 def plot_bar(hist):
     vals, freqs = hist.Render()
     rectangles = pyplot.bar(vals, freqs)
-    pyplot.show()    
+    pyplot.show() 
     
+
+def GetMedianFromList(attr,rank):
+    return score_example.Percentile2(attr, rank)
+
+def GetMedianFromCdf(cdf):
+    return cdf.Value(0.5)
+      
 def main():
     table = codesample.Pregnancies()
     table.ReadRecords()
@@ -87,8 +99,30 @@ def main():
           
     hist_firstbaby = AllModes(first_baby.records)
     plot_bar(hist_firstbaby)
+
+#    print first_baby.records[1].__dict__  
+    weight_firstbaby = [record.totalwgt_oz for record in first_baby.records]
+    weight_firstbaby = [x for x in weight_firstbaby if x != 'NA'] # to remove the "NA" value
     
+    weight_others = [record.totalwgt_oz for record in others.records]
+    weight_others = [x for x in weight_others if x != 'NA']
+#    print len(weight_firstbaby)
+#    print weight_firstbaby
+    percentile_my = score_example.PercentileRank(weight_firstbaby, 105)
+    print 'the percentile of my birth weight:', percentile_my
     
+    cdf_weight = Cdf.MakeCdfFromList(weight_firstbaby)
+    cdf_weight.name = 'first_baby'
+    cdf_others = Cdf.MakeCdfFromList(weight_others)
+    cdf_others.name = 'others'
+    myplot.Cdfs([cdf_weight, cdf_others])
+    myplot.Show(title='CDF of baby weight',
+               xlabel='weight (ounzes)',
+               ylabel='cumulative probability')
+#    print 'median value 1:', GetMedianFromList(weight_firstbaby, 75)
+    print 'median value:', GetMedianFromCdf(cdf_weight)
+#    print score_example.Percentile_select(np.array(weight_firstbaby), 50)
+#    
 
 if __name__ ==  '__main__':
     main()

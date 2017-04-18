@@ -16,6 +16,8 @@ import urllib
 
 import myplot
 import Pmf
+import Cdf
+import score_example
 
 results = 'http://www.coolrunning.com/results/10/ma/Apr25_27thAn_set1.shtml'
 
@@ -73,6 +75,19 @@ def GetSpeeds(results, column=5):
         speeds.append(speed)
     return speeds
 
+def GetDivSpeeds(results, divname, speedcol = 5, column = 2 ):
+    """
+    extracts the speeds with division column = divname and return a list of speeds in MPH.
+    """
+    speeds = []
+    for t in results:
+        div = t[column]
+        if div == divname:
+            pace = t[speedcol]
+            speed = ConvertPaceToSpeed(pace)
+            speeds.append(speed)
+    return speeds
+
 def BiasPmf(pmf, speed):
     observed_pmf = pmf.Copy()
     for value in pmf.Values():
@@ -85,16 +100,35 @@ def BiasPmf(pmf, speed):
 def main():
     results = ReadResults()
     speeds = GetSpeeds(results)
-    pmf = Pmf.MakePmfFromList(speeds, 'speeds')
-    myplot.Pmf(pmf)
-    myplot.Show(title='PMF of running speed',
+#    pmf = Pmf.MakePmfFromList(speeds, 'speeds')
+#    myplot.Pmf(pmf)
+#    myplot.Show(title='PMF of running speed',
+#               xlabel='speed (mph)',
+#               ylabel='probability')
+#    observed_pmf = BiasPmf(pmf, 7.5)
+#    myplot.Pmf(observed_pmf)
+#    myplot.Show(title='Biased PMF of running speed at 7.5',
+#               xlabel='speed (mph)',
+#               ylabel='probability')
+    cdf = Cdf.MakeCdfFromList(speeds, 'speeds')
+    myplot.Cdf(cdf)
+    myplot.Show(title='CDF of running speed',
                xlabel='speed (mph)',
-               ylabel='probability')
-    observed_pmf = BiasPmf(pmf, 7.5)
-    myplot.Pmf(observed_pmf)
-    myplot.Show(title='Biased PMF of running speed at 7.5',
-               xlabel='speed (mph)',
-               ylabel='probability')
+               ylabel='cumulative probability')
+    print len(speeds)
+    percentile_author = score_example.PercentileRank(speeds, speeds[96])
+    print 'percentile of the author:', percentile_author
+    
+    div_speed = GetDivSpeeds(results,'M4049')
+    print len(div_speed)
+    percentile_div = score_example.PercentileRank(div_speed, speeds[96])
+    print 'percentile of the author in his own division:', percentile_div
+    
+    div_speed2 = GetDivSpeeds(results, 'M5059')
+    expected_speed = score_example.Percentile_select(div_speed2, percentile_div)
+    print 'the author needs to run slower by:', expected_speed - speeds[96]
+
+    
 
 
 if __name__ == '__main__':
