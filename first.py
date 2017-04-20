@@ -122,6 +122,8 @@ def main():
 #    print 'median value 1:', GetMedianFromList(weight_firstbaby, 75)
     print 'median value:', GetMedianFromCdf(cdf_weight)
 #    print score_example.Percentile_select(np.array(weight_firstbaby), 50)
+
+    
 #    
 
 if __name__ ==  '__main__':
