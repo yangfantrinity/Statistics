@@ -290,7 +290,7 @@ def Cdf(cdf, complement=False, transform=None, **options):
       myplot.Save or myplot.Show
     """
     xs, ps = cdf.Render()
-    scale = dict(xscale='linear', yscale='linear')
+    scale = dict(xscale='linear', yscale='log')
 
     for s in ['xscale', 'yscale']: 
         if s in options:
